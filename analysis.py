@@ -1,6 +1,12 @@
-"""Reproduce the ShipRight portfolio analysis from the original Olist CSV files.
-Place the 9 original Olist CSV files in a local data/raw folder and update RAW below.
+"""ShipRight Capstone — analysis output reference.
+
+The processed CSV files in data/ contain the analysis-ready outputs used
+throughout the case study. The analysis rules and transformation decisions
+are documented in reports/methodology.md.
+
+The original Olist CSV files should be kept separately from the processed
+portfolio outputs.
 """
-# The generated processed CSVs in data/ are the outputs used by the case study.
-# See reports/methodology.md for the analysis rules.
-print('Use the processed CSV files in data/ and the methodology in reports/methodology.md.')
+
+print("ShipRight Capstone: processed analysis files are available in data/.")
+print("See reports/methodology.md for the analysis rules and methodology.")
