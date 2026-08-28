@@ -4,11 +4,11 @@
 
 This case study analyzes delivery performance and customer satisfaction using the Brazilian E-Commerce Public Dataset by Olist. The fictional company **ShipRight** is used only as a portfolio scenario; the underlying dataset is real and publicly available.
 
-Among 96,476 delivered orders, 93.2% were delivered on or before the estimated delivery date, while 6.8% were delivered late. The average delivery variance was -11.9 days, meaning orders were delivered earlier than their estimated dates on average.
+Among 96,476 delivered orders, 93.2% were delivered on or before the estimated delivery date, while 6.8% were delivered late. The average delivery variance was -11.9 days, meaning orders were delivered earlier than their estimated dates on average. Because an average can hide differences between individual orders, the on-time and late-delivery rates provide a clearer view of delivery performance.
 
-Delivery delay showed a negative relationship with customer review scores. The Pearson correlation was **-0.267**, indicating that longer delivery delays were associated with lower review scores in this dataset. However, correlation does not prove that delivery delays caused lower scores.
+Delivery delay had a negative relationship with customer review scores. The Pearson correlation was **-0.267**, indicating that longer delivery delays were associated with lower review scores in this dataset. This is an association and does not prove that delivery delays caused lower review scores.
 
-The analysis also found differences in delivery performance across customer states, product categories, and sellers. Because some orders contain multiple sellers or products, the analysis uses unique order-seller and order-category pairs where appropriate.
+The analysis also identified differences in delivery performance across customer states, product categories, sellers, and time periods. Because some orders contain multiple sellers or products, unique order-seller and order-category pairs were used where appropriate to reduce duplicate counting.
 
 ---
 
@@ -16,7 +16,7 @@ The analysis also found differences in delivery performance across customer stat
 
 ### Business Problem
 
-ShipRight needs to understand where delivery performance is weakest and whether delivery delays are associated with customer satisfaction. Without this information, the company may invest in the wrong operational improvements.
+ShipRight needs to understand where delivery performance is weakest and whether delivery delays are associated with customer satisfaction. Without this information, the company may invest in operational improvements without knowing where they are most needed.
 
 ### Business Objective
 
@@ -25,12 +25,12 @@ Identify geographic, seller, category, and time-based patterns in delivery perfo
 ### Stakeholders
 
 - **VP of Operations** — responsible for operational improvement decisions
-- **Logistics/Fulfillment Team** — responsible for investigating delivery issues
+- **Logistics/Fulfillment Team** — responsible for investigating and improving delivery performance
 - **Customer Experience Team** — monitors customer satisfaction and reviews
 
 ### Target Audience
 
-The primary audience is operations leadership and logistics managers. The analysis is therefore presented using clear metrics and visualizations that support practical decision-making rather than technical detail alone.
+The primary audience is operations leadership and logistics managers. The analysis therefore focuses on clear metrics, visualizations, and practical recommendations rather than technical details alone.
 
 ### Key Business Questions
 
@@ -53,8 +53,8 @@ This project uses the **Brazilian E-Commerce Public Dataset by Olist**, a public
 ### Tools
 
 - **Python** — data preparation, cleaning, transformation, and analysis
-- **SQL** — data querying and aggregation
-- **CSV** — intermediate and analysis-ready data files
+- **SQL** — querying and aggregation
+- **CSV** — analysis-ready data files
 - **GitHub** — project documentation and portfolio presentation
 
 ### Relevant Data Tables
@@ -74,13 +74,13 @@ The raw dataset contains several data-quality considerations:
 - The Orders table contains **99,441 rows**, including **2,965 missing customer-delivery dates**.
 - The Products table contains **610 missing category names**.
 - The Reviews table contains **87,656 missing review titles** and **58,247 missing review messages**. These text fields are not required for the core analysis.
-- The Geolocation table contains **261,831 duplicate rows**. This table is not required for the core analysis and was therefore not used.
+- The Geolocation table contains **261,831 duplicate rows**. This table is not required to answer the core business questions and was therefore excluded from the core analysis.
 - No negative prices or freight values were found in the Order Items data.
-- Four product records contain non-positive weight values. Because product weight and dimensions are not required for the core analysis, these fields were not used.
+- Four product records contain non-positive weight values. Product weight and dimensions are not required for the core analysis, so these fields were not used.
 
 ### Relationship Considerations
 
-The dataset contains relationships that need to be considered carefully during analysis.
+The dataset contains relationships that require careful handling during analysis.
 
 There are **1,278 orders with more than one seller**. Therefore, seller analysis uses unique order-seller pairs rather than treating every item row as a separate seller event.
 
@@ -99,12 +99,12 @@ The following steps were used to prepare the data for analysis:
 3. Calculate `delay_days` as the difference between the actual delivery date and estimated delivery date in calendar days.
 4. Define an order as **on time** when `delay_days <= 0`.
 5. Aggregate multiple review records to one mean review score per order.
-6. Create unique order-category pairs to avoid counting repeated products within the same order multiple times in category analysis.
+6. Create unique order-category pairs to reduce repeated-item weighting in category analysis.
 7. Create unique order-seller pairs for seller-level analysis.
 8. Keep missing category values as `Unknown` rather than assigning an unsupported category, and flag them when interpreting category-specific results.
-9. Exclude the nonessential Geolocation table from the core analysis because it is not required to answer the business questions.
+9. Exclude the Geolocation table from the core analysis because it is not required to answer the business questions.
 
-These steps were designed to reduce duplicate counting and make the analysis more consistent with the structure of the source data.
+These steps were designed to reduce duplicate counting and make the analysis consistent with the structure of the source data.
 
 ---
 
@@ -125,19 +125,17 @@ These steps were designed to reduce duplicate counting and make the analysis mor
 | Pearson delay/review correlation | -0.267 |
 | Spearman delay/review correlation | -0.176 |
 
-The average delivery variance was **-11.9 days**, meaning orders were delivered earlier than their estimated dates on average. Because an average can hide differences between individual orders, the on-time and late-delivery rates provide a clearer operational view.
+The average delivery variance was **-11.9 days**, meaning orders were delivered earlier than their estimated dates on average. Since averages can hide variation between individual orders, the on-time and late-delivery rates are used as the primary operational measures.
 
 ### Finding 1 — Delivery Performance Differs Across States
 
 Among customer states with at least 100 delivered orders, **Alagoas (AL)** had the highest late-delivery rate at **21.4%**, followed by **Maranhão (MA)** at **17.4%** and **Sergipe (SE)** at **15.2%**.
 
-These results identify states that may deserve further operational investigation. They do not, by themselves, identify the cause of the delays.
+These results identify states that may deserve further operational investigation. They do not, by themselves, identify the causes of the delays.
 
 ### Finding 2 — Longer Delays Are Associated With Lower Review Scores
 
 The Pearson correlation between delivery delay and review score was **-0.267**, while the Spearman correlation was **-0.176**.
-
-Review scores also decreased across most delay groups:
 
 | Delivery status | Average review score |
 |---|---:|
@@ -147,11 +145,11 @@ Review scores also decreased across most delay groups:
 | 8–14 days late | 1.67 |
 | 15+ days late | 1.73 |
 
-This indicates a negative relationship between delivery delay and customer review scores in the dataset. However, the analysis is observational and does not establish that delivery delay alone caused lower review scores.
+Review scores were generally lower as delivery delays increased. This indicates a negative relationship between delivery delay and customer review scores in the dataset. However, the analysis is observational and does not establish that delivery delay alone caused lower review scores.
 
 ### Finding 3 — Category Differences Are Smaller Than Some Geographic Differences
 
-Using unique order-category pairs and focusing on categories with at least 500 pairs, **Office Furniture** had an **8.1%** late-delivery rate and **Baby** had an **8.0%** rate.
+Using unique order-category pairs and focusing on categories with at least 500 pairs, **Office Furniture** had an **8.1%** late-delivery rate and **Baby** had an **8.0%** late-delivery rate.
 
 Several high-volume categories were close to the overall late-delivery rate. Category differences therefore provide useful information for prioritization, but they should be considered alongside geographic and seller-level patterns.
 
@@ -173,11 +171,13 @@ The earliest months contain very small order volumes, so they should not be trea
 
 ## 5. Share
 
-### Recommended Dashboard
+### Portfolio Dashboard
 
-A one-page Power BI dashboard could present the findings in a clear, decision-focused format.
+The findings can be presented through a focused dashboard titled:
 
-Recommended components include:
+**Delivery Performance & Customer Satisfaction**
+
+Recommended visualizations include:
 
 - **KPI cards:** Delivered Orders, On-Time Rate, Late Rate, Average Review Score
 - **Line chart:** Monthly late-delivery rate
@@ -187,7 +187,7 @@ Recommended components include:
 - **Column chart:** Average review score by delivery-delay group
 - **Slicers:** Month, customer state, and product category
 
-The dashboard should focus on the most important decisions and avoid displaying unnecessary fields.
+The dashboard should focus on the findings that support business decisions and avoid unnecessary fields.
 
 ---
 
@@ -197,19 +197,19 @@ The dashboard should focus on the most important decisions and avoid displaying 
 
 Operations teams should investigate states with consistently high late-delivery rates and sufficient order volume, beginning with **AL, MA, and SE**.
 
-The investigation could examine carrier coverage, fulfillment handoffs, and the accuracy of estimated delivery dates before broader operational changes are made.
+The investigation could examine carrier coverage, fulfillment handoffs, and the accuracy of estimated delivery dates before broader operational changes are considered.
 
 ### Recommendation 2 — Monitor Delivery Performance Alongside Customer Satisfaction
 
 Because longer delivery delays are associated with lower review scores, ShipRight should monitor delivery performance and customer satisfaction together.
 
-Tracking these measures side by side can help the business identify potential customer-experience risks earlier.
+Tracking these measures side by side can help identify potential customer-experience risks and prioritize further investigation.
 
 ### Recommendation 3 — Create Seller-Level Exception Monitoring
 
 Seller-level reporting can help identify high-volume sellers with unusually high late-delivery rates.
 
-The goal should be targeted investigation and operational support rather than automatic penalties, because seller performance may also reflect differences in geography, product mix, and other factors not included in this analysis.
+The goal should be targeted investigation and operational support rather than automatic penalties, because seller performance may also reflect differences in geography, product mix, and other factors not captured in this analysis.
 
 ---
 
@@ -232,4 +232,4 @@ The analysis shows that delivery performance varies across the marketplace and t
 
 The strongest practical opportunities are to monitor high-risk geographic areas, investigate seller-level exceptions, and track delivery performance alongside customer satisfaction.
 
-These findings provide a data-driven starting point for further operational investigation while avoiding unsupported claims about causation. The same analysis framework could also be reused with additional data to investigate carrier performance, product characteristics, or other factors that may contribute to delivery delays.
+These findings provide a data-driven starting point for further operational investigation while avoiding unsupported claims about causation. The same analytical framework could be extended with additional data to investigate carrier performance, product characteristics, or other factors that may contribute to delivery delays.
